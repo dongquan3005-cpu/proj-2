@@ -40,8 +40,17 @@ string cleanToken(const string& token) {
 }
 
 set<string> gatherTokens(const string& text) {
-  // TODO student
-  return {};
+  set<string> tokens;
+  stringstream ss(text);
+
+  string raw;
+  while (ss >> raw) {
+    string cleaned = cleanToken(raw);
+    if (!cleaned.empty()) {
+      tokens.insert(cleaned);
+    }
+  }
+  return tokens;
 }
 
 int buildIndex(const string& filename, map<string, set<string>>& index) {

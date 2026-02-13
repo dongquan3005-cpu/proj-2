@@ -32,3 +32,24 @@ TEST(CleanToken, NumbersAreNotPunctuation) {
   EXPECT_THAT(cleanToken(input), StrEq("1.abc.1"))
       << "input=\"" << input << "\"";
 }
+
+TEST(GatherToken, LeadingSpaces) {
+  string text = "   to be or not to be";
+  set<string> expected = {"to", "be", "or", "not"};
+  EXPECT_THAT(gatherTokens(text), ContainerEq(expected))
+      << "text=\"" << text << "\"";
+}
+
+TEST(GatherToken, TrailingSpaces) {
+  string text = "to be or not to be   ";
+  set<string> expected = {"to", "be", "or", "not"};
+  EXPECT_THAT(gatherTokens(text), ContainerEq(expected))
+      << "text=\"" << text << "\"";
+}
+
+TEST(GatherToken, MultipleSpacesBetweenWords) {
+  string text = "to   be  or      not   to   be";
+  set<string> expected = {"to", "be", "or", "not"};
+  EXPECT_THAT(gatherTokens(text), ContainerEq(expected))
+      << "text=\"" << text << "\"";
+}
