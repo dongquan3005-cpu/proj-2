@@ -1,6 +1,7 @@
 #include "include/search.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -14,7 +15,7 @@ using namespace std;
 string cleanToken(const string& token) {
   string s = token;
   for (char& c : s) {
-    c = static_cast<char>(tolower(static_cast<unsigned>(c)));
+    c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
   }
 
   bool hasLetter = false;
@@ -54,9 +55,30 @@ set<string> gatherTokens(const string& text) {
 }
 
 int buildIndex(const string& filename, map<string, set<string>>& index) {
-  // TODO student
-  return 0;
-}
+  ifstream infile(filename);
+  if (!infile.is_open()) return 0;
+
+  int pages = 0;
+  string url, text;
+
+  while (getline(infile, url) && getline(infile, text)) {
+    if (!url.empty() && url.back() == '\r') {
+      url.pop_back();
+    }
+    if (!text.empty() && text.back() == '\r') {
+      text.pop_back();
+    }
+
+    pages++;
+    set<string> tokens = gatherTokens(text);
+
+    for (const string& token : tokens) {
+      index[token].insert(url);
+    }
+  }  // ✅ closes while loop
+
+  return pages;
+}  // ✅ closes buildIndex
 
 set<string> findQueryMatches(const map<string, set<string>>& index,
                              const string& sentence) {
