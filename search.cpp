@@ -75,10 +75,10 @@ int buildIndex(const string& filename, map<string, set<string>>& index) {
     for (const string& token : tokens) {
       index[token].insert(url);
     }
-  }  // ✅ closes while loop
+  }
 
   return pages;
-}  // ✅ closes buildIndex
+}
 
 set<string> findQueryMatches(const map<string, set<string>>& index,
                              const string& sentence) {
