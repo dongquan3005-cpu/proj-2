@@ -11,6 +11,16 @@ TEST(CleanTokens, PunctuationBothEnds) {
   EXPECT_THAT(cleanToken(input), StrEq("hello")) << "input=\"" << input << "\"";
 }
 
+TEST(CleanToken, PunctuationAtStartAndMiddle) {
+  string input = "!co-op";
+  EXPECT_THAT(cleanToken(input), StrEq("co-op")) << "input=\"" << input << "\"";
+}
+
+TEST(CleanToken, PunctuationInMiddleAndEnd) {
+  string input = "co-op!";
+  EXPECT_THAT(cleanToken(input), StrEq("co-op")) << "input=\"" << input << "\"";
+}
+
 TEST(CleanTokens, PunctuationInMiddle) {
   string input = "co-op";
   EXPECT_THAT(cleanToken(input), StrEq("co-op")) << "input=\"" << input << "\"";
@@ -69,4 +79,40 @@ TEST(buildIndex, TinyFilePageCountAndSomeWords) {
   EXPECT_TRUE(index.count("eggs"));
   EXPECT_FALSE(index["milk"].empty());
   EXPECT_FALSE(index["eggs"].empty());
+}
+
+TEST(FindQueryMatches, FirstTermMissing) {
+  map<string, set<string>> index;
+  index["apple"] = {"u1", "u2"};
+
+  set<string> result = findQueryMatches(index, "banana");
+
+  EXPECT_TRUE(result.empty());
+}
+
+TEST(FindQueryMatches, MissingTermUnionDoesNothing) {
+  map<string, set<string>> index;
+  index["apple"] = {"u1", "u2"};
+
+  set<string> result = findQueryMatches(index, "apple banana");
+
+  EXPECT_THAT(result, ContainerEq(set<string>{"u1", "u2"}));
+}
+
+TEST(FindQueryMatches, MissingTermIntersectionClearsSet) {
+  map<string, set<string>> index;
+  index["apple"] = {"u1", "u2"};
+
+  set<string> result = findQueryMatches(index, "apple +banana");
+
+  EXPECT_TRUE(result.empty());
+}
+
+TEST(FindQueryMatches, MissingTermDifferenceDoesNothing) {
+  map<string, set<string>> index;
+  index["apple"] = {"u1", "u2"};
+
+  set<string> result = findQueryMatches(index, "apple -banana");
+
+  EXPECT_THAT(result, ContainerEq(set<string>{"u1", "u2"}));
 }

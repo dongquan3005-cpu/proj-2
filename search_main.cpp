@@ -7,11 +7,8 @@ using namespace std;
 
 int main() {
   string filename;
-
-  cout << "Enter a filename: ";
+  cout << "Enter a filename:" << endl;
   getline(cin, filename);
-
-  // This will not work until we're done with the project!
   searchEngine(filename);
   return 0;
 }

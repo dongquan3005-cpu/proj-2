@@ -82,10 +82,81 @@ int buildIndex(const string& filename, map<string, set<string>>& index) {
 
 set<string> findQueryMatches(const map<string, set<string>>& index,
                              const string& sentence) {
-  // TODO student
-  return {};
+  stringstream ss(sentence);
+  string term;
+
+  ss >> term;
+  string cleaned = cleanToken(term);
+
+  set<string> result;
+  auto it = index.find(cleaned);
+  if (it != index.end()) {
+    result = it->second;
+  }
+
+  while (ss >> term) {
+    char modifier = 0;
+    if (term[0] == '+' || term[0] == '-') {
+      modifier = term[0];
+      term = term.substr(1);
+    }
+
+    string cleanedTerm = cleanToken(term);
+
+    set<string> matches;
+    auto it2 = index.find(cleanedTerm);
+    if (it2 != index.end()) {
+      matches = it2->second;
+    }
+
+    set<string> temp;
+    if (modifier == '+') {
+      set_intersection(result.begin(), result.end(), matches.begin(),
+                       matches.end(), inserter(temp, temp.begin()));
+    } else if (modifier == '-') {
+      set_difference(result.begin(), result.end(), matches.begin(),
+                     matches.end(), inserter(temp, temp.begin()));
+    } else {
+      set_union(result.begin(), result.end(), matches.begin(), matches.end(),
+                inserter(temp, temp.begin()));
+    }
+
+    result = temp;
+  }
+
+  return result;
 }
 
 void searchEngine(const string& filename) {
-  // TODO student
+  map<string, set<string>> index;
+
+  int pages = buildIndex(filename, index);
+
+  if (pages == 0) {
+    cout << "Error: Unable to open file" << endl;
+    return;
+  }
+
+  cout << "Indexed " << pages << " pages containing " << index.size()
+       << " unique terms" << endl;
+
+  while (true) {
+    cout << "Enter query sentence (press enter to quit):" << endl;
+
+    string query;
+    getline(cin, query);
+
+    if (query == "") {
+      break;
+    }
+
+    set<string> matches = findQueryMatches(index, query);
+
+    cout << "Found " << matches.size() << " matching pages" << endl;
+    for (const string& url : matches) {
+      cout << url << endl;
+    }
+  }
+
+  cout << "Thank you for searching!" << endl;
 }
